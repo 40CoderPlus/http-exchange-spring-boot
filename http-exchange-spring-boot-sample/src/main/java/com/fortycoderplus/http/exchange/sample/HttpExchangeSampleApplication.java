@@ -20,8 +20,17 @@
 
 package com.fortycoderplus.http.exchange.sample;
 
+import com.fortycoderplus.http.exchange.autoconfigure.EnableHttpInterfaces;
+import com.fortycoderplus.http.exchange.autoconfigure.HttpInterface;
+import lombok.AllArgsConstructor;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.service.annotation.GetExchange;
+import reactor.core.publisher.Mono;
 
 @SpringBootApplication
 public class HttpExchangeSampleApplication {
@@ -29,4 +38,32 @@ public class HttpExchangeSampleApplication {
     public static void main(String[] args) {
         SpringApplication.run(HttpExchangeSampleApplication.class, args);
     }
+
+    @HttpInterface(baseUrl = "http://127.0.0.1:8080")
+    public interface GreetingService {
+
+        @GetExchange("/greeting")
+        Mono<String> greeting(@RequestParam String name);
+    }
+
+    @AllArgsConstructor
+    @RestController
+    public static class GreetingEndpoint {
+
+        private GreetingService greetingService;
+
+        @RequestMapping("/hello")
+        public Mono<String> greeting(@RequestParam String name) {
+            return greetingService.greeting(name);
+        }
+
+        @RequestMapping("/greeting")
+        public Mono<String> hello(@RequestParam String name) {
+            return Mono.just("Hello " + name);
+        }
+    }
+
+    @Configuration
+    @EnableHttpInterfaces(basePackages = "com.fortycoderplus.http.exchange.sample")
+    public static class HttpExchangeConfiguration {}
 }

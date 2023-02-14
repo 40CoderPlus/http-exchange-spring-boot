@@ -41,6 +41,11 @@ import org.springframework.core.type.AnnotationMetadata;
 import org.springframework.core.type.filter.AnnotationTypeFilter;
 import org.springframework.util.ClassUtils;
 import org.springframework.util.StringUtils;
+import org.springframework.web.service.annotation.DeleteExchange;
+import org.springframework.web.service.annotation.GetExchange;
+import org.springframework.web.service.annotation.PatchExchange;
+import org.springframework.web.service.annotation.PostExchange;
+import org.springframework.web.service.annotation.PutExchange;
 
 @Slf4j
 public class HttpExchangeClientRegistrar
@@ -93,7 +98,11 @@ public class HttpExchangeClientRegistrar
                         && beanDefinition.getMetadata().isInterface()
                         && beanDefinition.getMetadata().hasAnnotation(HttpInterface.class.getCanonicalName())) {
                     return beanDefinition.getMetadata().getDeclaredMethods().stream()
-                            .anyMatch(mm -> mm.isAnnotated(HttpInterface.class.getCanonicalName()));
+                            .anyMatch(mm -> mm.isAnnotated(GetExchange.class.getCanonicalName())
+                                    || mm.isAnnotated(PutExchange.class.getCanonicalName())
+                                    || mm.isAnnotated(PostExchange.class.getCanonicalName())
+                                    || mm.isAnnotated(PatchExchange.class.getCanonicalName())
+                                    || mm.isAnnotated(DeleteExchange.class.getCanonicalName()));
                 }
                 return false;
             }
