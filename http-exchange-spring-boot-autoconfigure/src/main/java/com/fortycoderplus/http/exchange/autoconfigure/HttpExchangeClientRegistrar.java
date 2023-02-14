@@ -65,7 +65,7 @@ public class HttpExchangeClientRegistrar
             Set<BeanDefinition> candidateComponents = scanner.findCandidateComponents(basePackage);
             for (BeanDefinition candidateComponent : candidateComponents) {
                 if (candidateComponent instanceof AnnotatedBeanDefinition beanDefinition) {
-                    registerRSocketClients(registry, beanDefinition.getMetadata());
+                    registerHttpInterfaceClients(registry, beanDefinition.getMetadata());
                 }
             }
         }
@@ -109,7 +109,7 @@ public class HttpExchangeClientRegistrar
         };
     }
 
-    private void registerRSocketClients(BeanDefinitionRegistry registry, AnnotationMetadata annotationMetadata) {
+    private void registerHttpInterfaceClients(BeanDefinitionRegistry registry, AnnotationMetadata annotationMetadata) {
         try {
             String className = annotationMetadata.getClassName();
             Class<?> target = Class.forName(className);

@@ -59,7 +59,7 @@ public interface GreetingService {
 
 Use you own `WebClient`
 ```java
-@RSocketClient(webClient = "myClient")
+@HttpInterface(webClient = "myClient")
 public interface GreetingService {
 
     @GetExchange("/greeting")
