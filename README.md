@@ -66,3 +66,8 @@ public interface GreetingService {
     Mono<String> greeting(@RequestParam String name);
 }
 ```
+
+# Learn More
+
+- [HTTP Interface in Spring 6](https://www.baeldung.com/spring-6-http-interface)
+- [Spring Declarative HTTP Client using @HttpExchange](https://howtodoinjava.com/spring-webflux/http-declarative-http-client-httpexchange/#5-http-service-interface-example)
