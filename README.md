@@ -1,8 +1,8 @@
 # Spring Http Exchange Auto Create Proxy Service
 
-Add annotation `@RSocketClient` for `@RScoketExchange`.
+Add annotation `@HttpInterface` for `@HttpExchange`.
 
-Add annotation `@EnableRSocketClients` for init beans with annotation `@RSocketClient`.
+Add annotation `@EnableHttpInterfaces` for init beans with annotation `@HttpInterface`.
 
 # Requirements
 
@@ -12,67 +12,3 @@ Add annotation `@EnableRSocketClients` for init beans with annotation `@RSocketC
 # How to use
 
 Annotation interface by `@HttpInterface`
-
-```java
-@HttpInterface
-public interface AnswerService {
-
-    @RSocketExchange("answer")
-    Mono<Answer> answer(@Payload Question question);
-}
-```
-
-Use `AnswerService` to communicate with RSocket Server
-
-```java
-@AllArgsConstructor
-@RestController
-public class QuestionApi {
-
-    private AnswerService answerService;
-
-    @RequestMapping(path = "/question")
-    public Mono<Answer> question(@RequestParam(name = "current") int current) {
-        return answerService.answer(new Question(current));
-    }
-}
-```
-
-More about `@RSocketClient`
-
-Use you own `RSocketServiceProxyFactory`
-```java
-@HttpInterface(proxyFactory = "myProxyFactory")
-public interface AnswerService {
-
-    @RSocketExchange("answer")
-    Mono<Answer> answer(@Payload Question question);
-}
-```
-
-Use you own `RSocketRequester`
-```java
-@HttpInterface(rsocketRequester = "myRSocketRequester")
-public interface AnswerService {
-
-    @RSocketExchange("answer")
-    Mono<Answer> answer(@Payload Question question);
-}
-```
-
-### Limit
-
-Current can't auto register `@RSocketClient` bean for Server push message to client.
-But we can do like this:
-
-```groovy
-AnswerService createServiceForClient(RSocketRequester rsocketRequester) {
-    return RSocketServiceProxyFactory.builder(rsocketRequester).build()
-        .createClient(AnswerService.class);
-}
-```
-
-See more:
-- [rsocket-exchange-spring-boot-sample](rsocket-exchange-spring-boot-sample)
-- [Spring RSocket](https://docs.spring.io/spring-framework/docs/current/reference/html/rsocket.html)
-- [RSocket](https://rsocket.io)
