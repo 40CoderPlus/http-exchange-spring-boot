@@ -1,60 +1,78 @@
-# Gradle Multi Module Template
+# Spring Http Exchange Auto Create Proxy Service
 
-Using plugin
-- [Baseline](https://github.com/palantir/gradle-baseline)
-- [Spotless](https://github.com/diffplug/spotless)
-- [Sonar](https://github.com/SonarSource/sonar-scanner-gradle)
-- [Dependency Check](https://github.com/dependency-check/dependency-check-gradle)
+Add annotation `@RSocketClient` for `@RScoketExchange`.
 
-# Baseline
+Add annotation `@EnableRSocketClients` for init beans with annotation `@RSocketClient`.
 
-```shell
-gradle idea
+# Requirements
+
+- Spring Framework 6/Spring Boot 3
+- Java 17+
+
+# How to use
+
+Annotation interface by `@HttpInterface`
+
+```java
+@HttpInterface
+public interface AnswerService {
+
+    @RSocketExchange("answer")
+    Mono<Answer> answer(@Payload Question question);
+}
 ```
 
-# Build
+Use `AnswerService` to communicate with RSocket Server
 
-```shell
-gradle build -x test
+```java
+@AllArgsConstructor
+@RestController
+public class QuestionApi {
+
+    private AnswerService answerService;
+
+    @RequestMapping(path = "/question")
+    public Mono<Answer> question(@RequestParam(name = "current") int current) {
+        return answerService.answer(new Question(current));
+    }
+}
 ```
 
-# Dependency Check
+More about `@RSocketClient`
 
-Execute dependency check:
+Use you own `RSocketServiceProxyFactory`
+```java
+@HttpInterface(proxyFactory = "myProxyFactory")
+public interface AnswerService {
 
-```shell
-gradle dependencyCheckAggregate
+    @RSocketExchange("answer")
+    Mono<Answer> answer(@Payload Question question);
+}
 ```
 
-# Spotless
+Use you own `RSocketRequester`
+```java
+@HttpInterface(rsocketRequester = "myRSocketRequester")
+public interface AnswerService {
 
-```shell
-gradle spotlessApply
+    @RSocketExchange("answer")
+    Mono<Answer> answer(@Payload Question question);
+}
 ```
 
-# Sonar
+### Limit
 
-Configuration：
+Current can't auto register `@RSocketClient` bean for Server push message to client.
+But we can do like this:
 
-add `gradle.properties` in folder `GRADLE_USER_HOME`
-
-add content:
-
-```text
-nexusUsername=foo
-nexusPassword=bar
-
-systemProp.sonar.host.url=http://sonarqube.40coderplus.com
-systemProp.sonar.login=keyForSonarqube
+```groovy
+AnswerService createServiceForClient(RSocketRequester rsocketRequester) {
+    return RSocketServiceProxyFactory.builder(rsocketRequester).build()
+        .createClient(AnswerService.class);
+}
 ```
 
-Execute sonar check:
-```shell
-gradle sonar
-```
-
-# Publish to Maven
-
-```shell
-gradle publish
-```
+See more:
+- [rsocket-exchange-spring-boot-sample](rsocket-exchange-spring-boot-sample)
+- [Spring RSocket](https://docs.spring.io/spring-framework/docs/current/reference/html/rsocket.html)
+- [RSocket](https://rsocket.io)

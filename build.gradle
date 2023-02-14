@@ -1,7 +1,7 @@
 buildscript {
     ext {
         //@formatter:off
-        sbVersion      = '2.7.7'
+        sbVersion      = '3.0.2'
         junitVersion   = '5.9.0'
         //@formatter:on
     }
@@ -24,7 +24,7 @@ buildscript {
 }
 
 subprojects {
-    group 'com.fortycoderplus.template'
+    group 'com.fortycoderplus.http'
     version "1.0.0"
 
     apply plugin: 'java'
@@ -32,9 +32,6 @@ subprojects {
     apply plugin: 'maven-publish'
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'idea'
-
-    sourceCompatibility = JavaVersion.VERSION_11
-    targetCompatibility = JavaVersion.VERSION_11
 
     repositories {
         mavenLocal()
@@ -47,26 +44,16 @@ subprojects {
         }
     }
 
-    dependencies {
-        // lombok
-        compileOnly "org.projectlombok:lombok:1.18.24"
-        annotationProcessor "org.projectlombok:lombok:1.18.24"
-        // mapstruct
-        implementation 'org.mapstruct:mapstruct:1.5.2.Final'
-        annotationProcessor 'org.mapstruct:mapstruct-processor:1.5.2.Final'
-
-        // test:junit
-        testImplementation "org.junit.jupiter:junit-jupiter-api:$junitVersion"
-        testImplementation "org.junit.jupiter:junit-jupiter-engine:$junitVersion"
-    }
-
     plugins.withType(JavaPlugin) {
-        project.sourceCompatibility = JavaVersion.VERSION_11
+        project.sourceCompatibility = JavaVersion.VERSION_17
     }
     tasks.withType(JavaCompile) {
         options.encoding = "UTF-8"
     }
 
+    java {
+        withSourcesJar()
+    }
     test {
         useJUnitPlatform()
     }
@@ -74,16 +61,16 @@ subprojects {
     publishing {
         publications {
             mavenJava(MavenPublication) {
-                groupId = 'com.fortycoderplus.template'
+                groupId = 'com.fortycoderplus.http'
                 artifactId = project.name
                 version = project.version
 
                 from components.java
 
                 pom {
-                    name = "Gradle Multi Module Template"
-                    description = 'Gradle Multi Module Template'
-                    url = 'https://github.com/40coderplus/gradle-multi-module-template'
+                    name = "Http Exchange Spring Boot"
+                    description = 'Http Exchange Spring Boot'
+                    url = 'https://github.com/40coderplus/http-exchange-spring-boot'
                     developers {
                         developer {
                             id = 'Codingendless'
@@ -92,8 +79,8 @@ subprojects {
                         }
                     }
                     scm {
-                        connection = 'scm:git:git@github.com:40coderplus/gradle-multi-module-template.git'
-                        url = 'https://github.com/40coderplus/gradle-multi-module-template'
+                        connection = 'scm:git:git@github.com:40coderplus/http-exchange-spring-boot.git'
+                        url = 'https://github.com/40coderplus/http-exchange-spring-boot'
                     }
                 }
             }

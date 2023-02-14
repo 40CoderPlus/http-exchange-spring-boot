@@ -18,10 +18,37 @@
  * limitations under the License.
  */
 
-package com.fortycoderplus.template;
+package com.fortycoderplus.http.exchange.autoconfigure;
 
-public class Core {
-    public static void main(String[] args) {
-        System.out.println("I am module core !");
-    }
+import java.lang.annotation.Documented;
+import java.lang.annotation.ElementType;
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
+import java.lang.annotation.Target;
+
+@Target(ElementType.TYPE)
+@Retention(RetentionPolicy.RUNTIME)
+@Documented
+public @interface HttpInterface {
+
+    /**
+     * Base Url for Webclient
+     *
+     * @return String
+     */
+    String baseUrl() default "";
+
+    /**
+     * WebClient bean name
+     *
+     * @return String
+     */
+    String webClient() default "";
+
+    /**
+     * HttpServiceProxyFactory bean name
+     *
+     * @return String
+     */
+    String proxyFactory() default "";
 }

@@ -1,3 +1,5 @@
-rootProject.name = 'gradle-multi-module-template'
-include 'core'
-include 'api'
+rootProject.name = 'http-exchange-spring-boot'
+include 'http-exchange-spring-boot-autoconfigure'
+include 'http-exchange-spring-boot-starter'
+include 'http-exchange-spring-boot-sample'
+

@@ -18,28 +18,22 @@
  * limitations under the License.
  */
 
-package com.fortycoderplus.template;
+package com.fortycoderplus.http.exchange.autoconfigure;
 
-import org.springframework.boot.SpringApplication;
-import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.support.WebClientAdapter;
+import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-@SpringBootApplication
-public class Api {
-    public static void main(String[] args) {
-        SpringApplication.run(Api.class, args);
-    }
+@ConditionalOnBean({WebClient.class})
+public class HttpExchangeAutoConfigure {
 
-    @RestController
-    @RequestMapping(path = "/api")
-    static class Example {
-
-        @RequestMapping(method = RequestMethod.GET, path = "/{word}")
-        public String hello(@PathVariable String word) {
-            return word;
-        }
+    @Bean
+    @ConditionalOnMissingBean
+    public HttpServiceProxyFactory proxyFactory(WebClient webClient) {
+        return HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient))
+                .build();
     }
 }
