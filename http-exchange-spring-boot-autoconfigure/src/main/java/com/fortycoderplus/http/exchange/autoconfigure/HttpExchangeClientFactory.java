@@ -43,8 +43,8 @@ public class HttpExchangeClientFactory implements FactoryBean<Object>, Applicati
     public Object getObject() {
         if (StringUtils.hasText(baseUrl)) {
             WebClient webClient = WebClient.builder().baseUrl(baseUrl).build();
-            HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builder(
-                            WebClientAdapter.forClient(webClient))
+            HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builderFor(
+                            WebClientAdapter.create(webClient))
                     .build();
             return httpServiceProxyFactory.createClient(type);
         }
@@ -57,7 +57,7 @@ public class HttpExchangeClientFactory implements FactoryBean<Object>, Applicati
             WebClient webClient = StringUtils.hasText(webClientName)
                     ? applicationContext.getBean(WebClient.class, webClientName)
                     : applicationContext.getBean(WebClient.class);
-            return HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient))
+            return HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient))
                     .build()
                     .createClient(type);
         }

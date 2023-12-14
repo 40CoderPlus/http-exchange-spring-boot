@@ -1,7 +1,7 @@
 buildscript {
     ext {
         //@formatter:off
-        sbVersion      = '3.0.2'
+        sbVersion      = '3.2.0'
         junitVersion   = '5.9.0'
         //@formatter:on
     }

@@ -33,7 +33,7 @@ public class HttpExchangeAutoConfigure {
     @Bean
     @ConditionalOnMissingBean
     public HttpServiceProxyFactory proxyFactory(WebClient webClient) {
-        return HttpServiceProxyFactory.builder(WebClientAdapter.forClient(webClient))
+        return HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient))
                 .build();
     }
 }
