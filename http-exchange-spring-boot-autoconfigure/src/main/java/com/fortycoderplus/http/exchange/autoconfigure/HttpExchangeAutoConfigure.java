@@ -21,21 +21,29 @@
 package com.fortycoderplus.http.exchange.autoconfigure;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.context.annotation.Bean;
-import org.springframework.core.annotation.Order;
 import org.springframework.web.client.RestClient;
 import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
+import org.springframework.web.service.invoker.HttpExchangeAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 public class HttpExchangeAutoConfigure {
 
     @Bean
-    @ConditionalOnBean({RestClient.class})
+    @ConditionalOnBean({HttpExchangeAdapter.class})
+    @ConditionalOnMissingBean
+    public HttpServiceProxyFactory proxyFactory(HttpExchangeAdapter httpExchangeAdapter) {
+        return HttpServiceProxyFactory.builderFor(httpExchangeAdapter).build();
+    }
+
+    @Bean
+    @ConditionalOnClass({RestClient.class})
     @ConditionalOnWebApplication(type = Type.SERVLET)
     @ConditionalOnMissingBean
     public HttpServiceProxyFactory proxyFactory(RestClient restClient) {
@@ -44,7 +52,7 @@ public class HttpExchangeAutoConfigure {
     }
 
     @Bean
-    @ConditionalOnBean({WebClient.class})
+    @ConditionalOnClass({WebClient.class})
     @ConditionalOnWebApplication(type = Type.REACTIVE)
     @ConditionalOnMissingBean
     public HttpServiceProxyFactory proxyFactory(WebClient webClient) {
@@ -52,18 +60,18 @@ public class HttpExchangeAutoConfigure {
                 .build();
     }
 
-    @Order(-1)
     @Bean
-    @ConditionalOnBean({RestClient.class})
+    @ConditionalOnClass({RestClient.class})
     @ConditionalOnWebApplication(type = Type.SERVLET)
+    @ConditionalOnMissingBean
     public HttpExchangeAdapterCreator webmvcHttpExchangeAdapterCreator() {
         return new WebmvcHttpExchangeAdapterCreator();
     }
 
-    @Order(-1)
     @Bean
-    @ConditionalOnBean({WebClient.class})
+    @ConditionalOnClass({WebClient.class})
     @ConditionalOnWebApplication(type = Type.REACTIVE)
+    @ConditionalOnMissingBean
     public HttpExchangeAdapterCreator webfluxHttpExchangeAdapterCreator() {
         return new WebfluxHttpExchangeAdapterCreator();
     }
