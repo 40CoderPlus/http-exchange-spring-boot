@@ -1,11 +1,7 @@
-buildscript {
-    ext {
-        //@formatter:off
-        sbVersion      = '3.2.0'
-        junitVersion   = '5.9.0'
-        //@formatter:on
-    }
+import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter
 
+buildscript {
     repositories {
         gradlePluginPortal()
         maven {
@@ -15,23 +11,24 @@ buildscript {
 
     dependencies {
         classpath "org.springframework.boot:spring-boot-gradle-plugin:$sbVersion"
-        classpath "com.palantir.baseline:gradle-baseline-java:4.185.0"
-        classpath "io.spring.gradle:dependency-management-plugin:1.1.0"
-        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:3.5.0.2730"
-        classpath "com.diffplug.spotless:spotless-plugin-gradle:6.12.1"
-        classpath 'org.owasp:dependency-check-gradle:7.4.4'
+        classpath "io.spring.gradle:dependency-management-plugin:1.1.4"
+
+        classpath "com.palantir.baseline:gradle-baseline-java:5.31.0"
+        classpath "org.sonarsource.scanner.gradle:sonarqube-gradle-plugin:4.4.1.3373"
+        classpath "com.diffplug.spotless:spotless-plugin-gradle:6.23.3"
+        classpath 'org.owasp:dependency-check-gradle:9.0.2'
+
+        classpath "gradle.plugin.net.nemerosa:versioning:3.0.0"
     }
 }
 
 subprojects {
-    group 'com.fortycoderplus.http'
-    version "1.0.0"
-
     apply plugin: 'java'
     apply plugin: 'java-library'
     apply plugin: 'maven-publish'
     apply plugin: 'io.spring.dependency-management'
     apply plugin: 'idea'
+    apply plugin: "net.nemerosa.versioning"
 
     repositories {
         mavenLocal()
@@ -58,10 +55,23 @@ subprojects {
         useJUnitPlatform()
     }
 
+    jar {
+        manifest {
+            attributes(
+                    'Built-By': 'Codingendless',
+                    'Build-Timestamp': DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss").format(LocalDateTime.now()),
+                    'Build-Revision': versioning.info.commit,
+                    'Created-By': "Gradle ${gradle.gradleVersion}",
+                    'Build-Jdk': "${System.properties['java.version']} (${System.properties['java.vendor']} ${System.properties['java.vm.version']})",
+                    'Build-OS': "${System.properties['os.name']} ${System.properties['os.arch']} ${System.properties['os.version']}"
+            )
+        }
+    }
+
     publishing {
         publications {
             mavenJava(MavenPublication) {
-                groupId = 'com.fortycoderplus.http'
+                groupId = project.group
                 artifactId = project.name
                 version = project.version
 
@@ -70,7 +80,7 @@ subprojects {
                 pom {
                     name = "Http Exchange Spring Boot"
                     description = 'Http Exchange Spring Boot'
-                    url = 'https://github.com/40coderplus/http-exchange-spring-boot'
+                    url = "${scmUrl}"
                     developers {
                         developer {
                             id = 'Codingendless'
@@ -79,8 +89,8 @@ subprojects {
                         }
                     }
                     scm {
-                        connection = 'scm:git:git@github.com:40coderplus/http-exchange-spring-boot.git'
-                        url = 'https://github.com/40coderplus/http-exchange-spring-boot'
+                        connection = "scm:git:${scmGit}"
+                        url = "${scmUrl}"
                     }
                 }
             }
@@ -91,10 +101,8 @@ subprojects {
                     username "$nexusUsername"
                     password "$nexusPassword"
                 }
-                def releasesRepoUrl = "https://maven.40coderplus.com/repository/maven-releases/"
-                def snapshotsRepoUrl = "https://maven.40coderplus.com/repository/maven-snapshots/"
-                url = version.endsWith('SNAPSHOT') ? snapshotsRepoUrl : releasesRepoUrl
-                allowInsecureProtocol = true
+                url = version.endsWith('SNAPSHOT') ? "$nexusRelease" : "$nexusSnapshot"
+                allowInsecureProtocol = !url.toString().startsWith("https://")
             }
         }
     }

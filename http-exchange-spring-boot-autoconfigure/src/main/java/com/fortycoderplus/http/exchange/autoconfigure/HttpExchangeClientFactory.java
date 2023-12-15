@@ -25,8 +25,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.util.StringUtils;
-import org.springframework.web.reactive.function.client.WebClient;
-import org.springframework.web.reactive.function.client.support.WebClientAdapter;
+import org.springframework.web.service.invoker.HttpExchangeAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
 public class HttpExchangeClientFactory implements FactoryBean<Object>, ApplicationContextAware {
@@ -34,7 +33,7 @@ public class HttpExchangeClientFactory implements FactoryBean<Object>, Applicati
     private Class<?> type;
 
     private String baseUrl;
-    private String webClientName;
+    private String httpExchangeAdapter;
     private String proxyFactoryName;
 
     private ApplicationContext applicationContext;
@@ -42,10 +41,9 @@ public class HttpExchangeClientFactory implements FactoryBean<Object>, Applicati
     @Override
     public Object getObject() {
         if (StringUtils.hasText(baseUrl)) {
-            WebClient webClient = WebClient.builder().baseUrl(baseUrl).build();
-            HttpServiceProxyFactory httpServiceProxyFactory = HttpServiceProxyFactory.builderFor(
-                            WebClientAdapter.create(webClient))
-                    .build();
+            HttpExchangeAdapterCreator creator = applicationContext.getBean(HttpExchangeAdapterCreator.class);
+            HttpServiceProxyFactory httpServiceProxyFactory =
+                    HttpServiceProxyFactory.builderFor(creator.create(baseUrl)).build();
             return httpServiceProxyFactory.createClient(type);
         }
         try {
@@ -54,12 +52,10 @@ public class HttpExchangeClientFactory implements FactoryBean<Object>, Applicati
                     : applicationContext.getBean(HttpServiceProxyFactory.class);
             return proxyFactory.createClient(type);
         } catch (BeansException e) {
-            WebClient webClient = StringUtils.hasText(webClientName)
-                    ? applicationContext.getBean(WebClient.class, webClientName)
-                    : applicationContext.getBean(WebClient.class);
-            return HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient))
-                    .build()
-                    .createClient(type);
+            HttpExchangeAdapter adapter = StringUtils.hasText(httpExchangeAdapter)
+                    ? applicationContext.getBean(HttpExchangeAdapter.class, httpExchangeAdapter)
+                    : applicationContext.getBean(HttpExchangeAdapter.class);
+            return HttpServiceProxyFactory.builderFor(adapter).build().createClient(type);
         }
     }
 
@@ -84,8 +80,8 @@ public class HttpExchangeClientFactory implements FactoryBean<Object>, Applicati
         return this;
     }
 
-    public HttpExchangeClientFactory setWebClient(String webClientName) {
-        this.webClientName = webClientName;
+    public HttpExchangeClientFactory setHttpExchangeAdapter(String httpExchangeAdapter) {
+        this.httpExchangeAdapter = httpExchangeAdapter;
         return this;
     }
 

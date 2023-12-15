@@ -3,7 +3,8 @@ dependencies {
     annotationProcessor 'org.projectlombok:lombok'
 
     api 'org.springframework.boot:spring-boot-autoconfigure'
-    api 'org.springframework.boot:spring-boot-starter-webflux'
+    compileOnlyApi 'org.springframework.boot:spring-boot-starter-web'
+    compileOnlyApi 'org.springframework.boot:spring-boot-starter-webflux'
 
     compileOnly 'org.projectlombok:lombok'
 }

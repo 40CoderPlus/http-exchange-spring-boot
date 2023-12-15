@@ -20,35 +20,14 @@
 
 package com.fortycoderplus.http.exchange.autoconfigure;
 
-import java.lang.annotation.Documented;
-import java.lang.annotation.ElementType;
-import java.lang.annotation.Retention;
-import java.lang.annotation.RetentionPolicy;
-import java.lang.annotation.Target;
+import org.springframework.web.reactive.function.client.WebClient;
+import org.springframework.web.reactive.function.client.support.WebClientAdapter;
+import org.springframework.web.service.invoker.HttpExchangeAdapter;
 
-@Target(ElementType.TYPE)
-@Retention(RetentionPolicy.RUNTIME)
-@Documented
-public @interface HttpInterface {
+public class WebfluxHttpExchangeAdapterCreator implements HttpExchangeAdapterCreator {
 
-    /**
-     * Base Url for RestClient/WebClient
-     *
-     * @return String
-     */
-    String baseUrl() default "";
-
-    /**
-     * HttpExchangeAdapter bean name
-     *
-     * @return String
-     */
-    String httpExchangeAdapter() default "";
-
-    /**
-     * HttpServiceProxyFactory bean name
-     *
-     * @return String
-     */
-    String proxyFactory() default "";
+    @Override
+    public HttpExchangeAdapter create(String baseUrl) {
+        return WebClientAdapter.create(WebClient.builder().baseUrl(baseUrl).build());
+    }
 }

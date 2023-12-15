@@ -22,18 +22,49 @@ package com.fortycoderplus.http.exchange.autoconfigure;
 
 import org.springframework.boot.autoconfigure.condition.ConditionalOnBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnWebApplication.Type;
 import org.springframework.context.annotation.Bean;
+import org.springframework.core.annotation.Order;
+import org.springframework.web.client.RestClient;
+import org.springframework.web.client.support.RestClientAdapter;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.support.WebClientAdapter;
 import org.springframework.web.service.invoker.HttpServiceProxyFactory;
 
-@ConditionalOnBean({WebClient.class})
 public class HttpExchangeAutoConfigure {
 
     @Bean
+    @ConditionalOnBean({RestClient.class})
+    @ConditionalOnWebApplication(type = Type.SERVLET)
+    @ConditionalOnMissingBean
+    public HttpServiceProxyFactory proxyFactory(RestClient restClient) {
+        return HttpServiceProxyFactory.builderFor(RestClientAdapter.create(restClient))
+                .build();
+    }
+
+    @Bean
+    @ConditionalOnBean({WebClient.class})
+    @ConditionalOnWebApplication(type = Type.REACTIVE)
     @ConditionalOnMissingBean
     public HttpServiceProxyFactory proxyFactory(WebClient webClient) {
         return HttpServiceProxyFactory.builderFor(WebClientAdapter.create(webClient))
                 .build();
+    }
+
+    @Order(-1)
+    @Bean
+    @ConditionalOnBean({RestClient.class})
+    @ConditionalOnWebApplication(type = Type.SERVLET)
+    public HttpExchangeAdapterCreator webmvcHttpExchangeAdapterCreator() {
+        return new WebmvcHttpExchangeAdapterCreator();
+    }
+
+    @Order(-1)
+    @Bean
+    @ConditionalOnBean({WebClient.class})
+    @ConditionalOnWebApplication(type = Type.REACTIVE)
+    public HttpExchangeAdapterCreator webfluxHttpExchangeAdapterCreator() {
+        return new WebfluxHttpExchangeAdapterCreator();
     }
 }

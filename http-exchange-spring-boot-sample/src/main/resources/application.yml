@@ -1,3 +1,5 @@
 spring:
   application:
     name: http-exchange-sample
+  main:
+    web-application-type: reactive
