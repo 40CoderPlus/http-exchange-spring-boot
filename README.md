@@ -59,7 +59,7 @@ public interface GreetingService {
 
 Use you own `WebClient`
 ```java
-@HttpInterface(webClient = "myClient")
+@HttpInterface(httpExchangeAdapter = "myHttpExchangeAdapter")
 public interface GreetingService {
 
     @GetExchange("/greeting")
